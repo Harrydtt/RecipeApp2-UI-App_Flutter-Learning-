@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:recipe_app2/constants.dart';
 import 'package:recipe_app2/data.dart';
+import 'package:recipe_app2/detail.dart';
 import 'package:recipe_app2/shared.dart';
 
 class Explore extends StatefulWidget {
@@ -72,7 +73,28 @@ class _ExploreState extends State<Explore> {
               scrollDirection: Axis.horizontal,
               children: buildRecipes(),
             ),
-          )
+          ),
+          const SizedBox(
+            height: 16,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                buildTextTitleVariation2("Popular", false),
+                const SizedBox(
+                  width: 8,
+                ),
+                buildTextTitleVariation2("Food", true)
+              ],
+            ),
+          ),
+          SizedBox(
+              height: 190,
+              child: PageView(
+                physics: const BouncingScrollPhysics(),
+                children: buildPopulars(),
+              ))
         ]),
       ),
     );
@@ -123,39 +145,94 @@ class _ExploreState extends State<Explore> {
   }
 
   Widget buildRecipe(Recipe recipe, int index) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => Detail(recipe: recipe)));
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.white,
+          boxShadow: [kBoxShadow],
+        ),
+        margin: EdgeInsets.only(
+            right: 16, left: index == 0 ? 16 : 0, bottom: 16, top: 8),
+        padding: const EdgeInsets.all(16),
+        width: 220,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+                child: Hero(
+                    tag: recipe.image,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: AssetImage(recipe.image),
+                            fit: BoxFit.contain),
+                      ),
+                    ))),
+            const SizedBox(height: 8),
+            buildRecipeTitle(recipe.title),
+            buildTextSubTitleVariation2(recipe.description),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                buildCalories(recipe.calories.toString() + " Kcal"),
+                const Icon(Icons.favorite_border)
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> buildPopulars() {
+    List<Widget> list = [];
+    for (var i = 0; i < getRecipes().length; i++) {
+      list.add(buildPopular(getRecipes()[i]));
+    }
+    return list;
+  }
+
+  Widget buildPopular(Recipe recipe) {
     return Container(
+      margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: Colors.white,
         boxShadow: [kBoxShadow],
       ),
-      margin: EdgeInsets.only(
-          right: 16, left: index == 0 ? 16 : 0, bottom: 16, top: 8),
-      padding: const EdgeInsets.all(16),
-      width: 220,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-              child: Hero(
-                  tag: recipe.image,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage(recipe.image), fit: BoxFit.contain),
-                    ),
-                  ))),
-          const SizedBox(height: 8),
-          buildRecipeTitle(recipe.title),
-          buildTextSubTitleVariation2(recipe.description),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              buildCalories(recipe.calories.toString() + " Kcal"),
-            ],
-          )
-        ],
-      ),
+      child: Row(children: [
+        Container(
+          height: 160,
+          width: 160,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage(recipe.image), fit: BoxFit.fitHeight),
+          ),
+        ),
+        Expanded(
+            child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buildRecipeTitle(recipe.title),
+                buildRecipeSubTitle(recipe.description),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    buildCalories(recipe.calories.toString() + " Kcal"),
+                    const Icon(Icons.favorite_border)
+                  ],
+                )
+              ]),
+        ))
+      ]),
     );
   }
 }
